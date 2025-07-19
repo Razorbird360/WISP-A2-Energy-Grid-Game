@@ -21,9 +21,10 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     return Object.entries(terrain.modifier).map(function([key, value]) {
       const modifier = value > 1 ? '+' : '';
       const percentage = Math.round((value - 1) * 100);
+      const displayKey = key === 'approval' ? 'public approval' : key;
       return (
         <div key={key}>
-          {key}: {modifier}{percentage}%
+          {displayKey}: {modifier}{percentage}%
         </div>
       );
     });

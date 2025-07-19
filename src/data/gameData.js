@@ -68,7 +68,7 @@ export const terrainTypes = [
   { name: "Desert", emoji: "🏜️", modifier: { solar: 1.4, hydro: 0.3 } },
   { name: "Mountains", emoji: "🏔", modifier: { hydro: 1.6, wind: 1.2 } },
   { name: "River Delta", emoji: "🐟", modifier: { hydro: 1.5, nuclear: 0.8 } },
-  { name: "Volcanic", emoji: "🌋", modifier: { geothermal: 2.0, nuclear: 0.5 } },
+  { name: "Volcanic", emoji: "🌋", modifier: { nuclear: 0.5 } },
   { name: "Suburbs", emoji: "🧱", modifier: { approval: 0.9, cost: 1.1 } },
   { name: "Camping Area", emoji: "🏕", modifier: { approval: 1.1, emissions: 0.9 } },
   { name: "Quarry", emoji: "🚧", modifier: { cost: 0.7, approval: 0.7 } },
@@ -101,7 +101,7 @@ export const events = [
   },
   {
     name: "Nuclear Scandal",
-    description: "A safety scandal affects nuclear plant approval ratings.",
+    description: "A safety scandal affects nuclear plant public approval ratings.",
     effect: { nuclear: { approval: -15 } },
     probability: 0.15
   },
