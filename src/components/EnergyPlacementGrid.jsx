@@ -1,12 +1,20 @@
 import React from "react";
 
-function EnergyPlacementGrid({ 
-  grid, 
-  energySources, 
-  handleDragOver, 
-  handleDrop, 
-  removeFromCell 
-}) {
+function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
+{
+  function getBg(energySourceType) {
+    const colors = {
+      solar: "bg-yellow-600 bg-opacity-90",
+      wind: "bg-blue-600 bg-opacity-90", 
+      hydro: "bg-cyan-600 bg-opacity-90",
+      nuclear: "bg-purple-600 bg-opacity-90",
+      coal: "bg-gray-900 bg-opacity-90",
+      gas: "bg-orange-600 bg-opacity-90"
+    };
+    return colors[energySourceType] || "bg-black bg-opacity-80";
+  }
+
+
   function renderModifiers(terrain) {
     return Object.entries(terrain.modifier).map(function([key, value]) {
       const modifier = value > 1 ? '+' : '';
@@ -37,7 +45,7 @@ function EnergyPlacementGrid({
 
         {cell.energySource && (
           <div 
-            className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center z-20"
+            className={`absolute inset-0 rounded-lg flex items-center justify-center z-20 ${getBg(cell.energySource)}`}
             onClick={function(e) { e.stopPropagation(); }}
           >
             <div className="text-center text-white">
