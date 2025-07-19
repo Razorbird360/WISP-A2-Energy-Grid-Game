@@ -94,8 +94,20 @@ function App() {
     const costModifier = terrain.modifier.cost || 1;
     const actualCost = Math.round(source.cost * costModifier);
     
-    if (gameState.budget < actualCost) {
-      alert(`Not enough budget! This energy source costs ${actualCost} on this terrain (base cost: ${source.cost}, terrain modifier: ${costModifier}x)`);
+    //calculate refund for existing energy source if there is one
+    let refundAmount = 0;
+    if (cell.energySource) {
+      const existingSource = energySources[cell.energySource];
+      refundAmount = Math.round(existingSource.cost * costModifier);
+    }
+    
+    const netCost = actualCost - refundAmount;
+    
+    if (gameState.budget < netCost) {
+      const message = cell.energySource 
+        ? `Not enough budget! Replacing costs ${netCost} (new: ${actualCost}, refund: ${refundAmount})`
+        : `Not enough budget! This energy source costs ${actualCost} on this terrain (base cost: ${source.cost}, terrain modifier: ${costModifier}x)`;
+      alert(message);
       setDraggedEnergy(null);
       return;
     }
@@ -118,7 +130,7 @@ function App() {
 
     setGameState(function(prev) {
       return {
-        budget: prev.budget - actualCost,
+        budget: prev.budget - netCost,
         year: prev.year,
         maxYears: prev.maxYears,
         emissions: prev.emissions,
