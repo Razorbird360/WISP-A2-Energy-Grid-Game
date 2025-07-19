@@ -90,15 +90,15 @@ function App() {
     const cell = grid[cellIndex];
     const source = energySources[draggedEnergy];
     
-    if (gameState.budget < source.cost) {
-      alert("Not enough budget!");
-      setDraggedEnergy(null);
-      return;
-    }
-
     const terrain = cell.terrain;
     const costModifier = terrain.modifier.cost || 1;
     const actualCost = Math.round(source.cost * costModifier);
+    
+    if (gameState.budget < actualCost) {
+      alert(`Not enough budget! This energy source costs ${actualCost} on this terrain (base cost: ${source.cost}, terrain modifier: ${costModifier}x)`);
+      setDraggedEnergy(null);
+      return;
+    }
 
     const newGrid = [];
     for (let i = 0; i < grid.length; i++) {
