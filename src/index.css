@@ -1,1 +1,19 @@
 @import "tailwindcss";
+@import "toastify-js/src/toastify.css";
+
+/* Override toastify default styles */
+.toastify {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+.toastify-with-timer {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}

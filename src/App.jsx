@@ -7,6 +7,7 @@ import NextYearButton from "./components/NextYearButton.jsx";
 import EventModal from "./components/EventModal.jsx";
 import EndGameScreen from "./components/EndGameScreen.jsx";
 import { energySources, terrainTypes, events, socialComments } from "./data/gameData.js";
+import { toast } from "./utils/toastify.js";
 
 function App() {
   const [gameState, setGameState] = useState({
@@ -107,7 +108,7 @@ function App() {
       const message = cell.energySource 
         ? `Not enough budget! Replacing costs ${netCost} (new: ${actualCost}, refund: ${refundAmount})`
         : `Not enough budget! This energy source costs ${actualCost} on this terrain (base cost: ${source.cost}, terrain modifier: ${costModifier}x)`;
-      alert(message);
+      toast(message);
       setDraggedEnergy(null);
       return;
     }
@@ -140,6 +141,14 @@ function App() {
         gameOver: prev.gameOver
       };
     });
+
+    // Show success message
+    const sourceDisplayName = source.name;
+    if (cell.energySource) {
+      toast(`${sourceDisplayName} successfully replaced! Net cost: $${netCost}M`);
+    } else {
+      toast(`${sourceDisplayName} successfully placed! Cost: $${actualCost}M`);
+    }
 
     setDraggedEnergy(null);
   }
@@ -187,6 +196,9 @@ function App() {
       };
     });
 
+    // Show success message for removal
+    toast(`${source.name} removed! Refunded: $${refundAmount}M`);
+
   }
 
   function nextYear() {
@@ -222,6 +234,8 @@ function App() {
 
     if (gameState.year >= gameState.maxYears) {
       setShowEndGame(true);
+    } else {
+      toast(`Welcome to Year ${gameState.year + 1}! Keep building your energy grid.`);
     }
   }
 

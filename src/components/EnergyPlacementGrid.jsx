@@ -1,4 +1,6 @@
 import React from "react";
+import { toast } from "../utils/toastify.js";
+
 
 function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
 {
