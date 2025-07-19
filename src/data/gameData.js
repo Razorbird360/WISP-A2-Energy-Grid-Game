@@ -2,7 +2,7 @@
 export const energySources = {
   coal: { 
     name: "Coal", 
-    image: "/coal_plant.png", 
+    image: "./coal_plant.png", 
     cost: 30, 
     emissions: 80, 
     reliability: 95, 
@@ -11,7 +11,7 @@ export const energySources = {
   },
   wind: { 
     name: "Wind", 
-    image: "/wind_turbine.png", 
+    image: "./wind_turbine.png", 
     cost: 20, 
     emissions: 5, 
     reliability: 70, 
@@ -20,7 +20,7 @@ export const energySources = {
   },
   solar: { 
     name: "Solar", 
-    image: "/solar_farm.png", 
+    image: "./solar_farm.png", 
     cost: 25, 
     emissions: 2, 
     reliability: 65, 
@@ -29,7 +29,7 @@ export const energySources = {
   },
   nuclear: { 
     name: "Nuclear", 
-    image: "/nuclear_plant.png", 
+    image: "./nuclear_plant.png", 
     cost: 40, 
     emissions: 1, 
     reliability: 98, 
@@ -38,7 +38,7 @@ export const energySources = {
   },
   hydro: { 
     name: "Hydro", 
-    image: "/hydro_plant.png", 
+    image: "./hydro_plant.png", 
     cost: 35, 
     emissions: 3, 
     reliability: 90, 
@@ -47,7 +47,7 @@ export const energySources = {
   },
   gas: { 
     name: "Gas", 
-    image: "/gas_plant.png", 
+    image: "./gas_plant.png", 
     cost: 25, 
     emissions: 40, 
     reliability: 85, 
