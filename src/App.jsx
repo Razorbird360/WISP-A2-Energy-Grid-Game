@@ -96,7 +96,6 @@ function App() {
       return;
     }
 
-    // Calculate actual cost with terrain modifier
     const terrain = cell.terrain;
     const costModifier = terrain.modifier.cost || 1;
     const actualCost = Math.round(source.cost * costModifier);
@@ -134,6 +133,18 @@ function App() {
   }
 
   function removeFromCell(cellIndex) {
+    
+    const cell = grid[cellIndex];
+    if (!cell.energySource) {
+      return;
+    }
+
+    // Calculate refund amount with terrain modifier
+    const source = energySources[cell.energySource];
+    const terrain = cell.terrain;
+    const costModifier = terrain.modifier.cost || 1;
+    const refundAmount = Math.round(source.cost * costModifier);
+
     const newGrid = [];
     for (let i = 0; i < grid.length; i++) {
       if (i === cellIndex) {
@@ -149,6 +160,21 @@ function App() {
       }
     }
     setGrid(newGrid);
+
+    // Refund the cost to the budget
+    setGameState(function(prev) {
+      return {
+        budget: prev.budget + refundAmount,
+        year: prev.year,
+        maxYears: prev.maxYears,
+        emissions: prev.emissions,
+        approval: prev.approval,
+        reliability: prev.reliability,
+        demand: prev.demand,
+        gameOver: prev.gameOver
+      };
+    });
+
   }
 
   function nextYear() {

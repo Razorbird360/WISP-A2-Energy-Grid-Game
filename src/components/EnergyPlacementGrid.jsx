@@ -37,7 +37,7 @@ function EnergyPlacementGrid({
 
         {cell.energySource && (
           <div 
-            className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center"
+            className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center z-20"
             onClick={function(e) { e.stopPropagation(); }}
           >
             <div className="text-center text-white">
@@ -53,7 +53,8 @@ function EnergyPlacementGrid({
                 e.stopPropagation();
                 removeFromCell(index); 
               }}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs hover:bg-red-600 flex items-center justify-center"
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-7 h-7 text-sm hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border-2 border-white transition-all duration-200"
+              title="Remove energy source"
             >
               x
             </button>
