@@ -29,12 +29,12 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
         key={cell.id}
         onDragOver={handleDragOver}
         onDrop={function(e) { handleDrop(e, index); }}
-        className="aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0"
-        style={{ width: '100%', paddingBottom: '100%', height: 0 }}
+        className="aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 select-none"
+        style={{ aspectRatio: '1' }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg opacity-50"></div>
         
-        <div className="relative z-10 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center">
           <div className="text-base sm:text-lg">{cell.terrain.emoji}</div>
           <div className="text-[10px] sm:text-xs font-medium text-gray-700">{cell.terrain.name}</div>
         </div>
@@ -65,7 +65,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
           </div>
         )}
 
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20 pointer-events-none">
           {renderModifiers(cell.terrain)}
         </div>
       </div>
