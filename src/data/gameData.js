@@ -12,7 +12,7 @@ export const energySources = {
   wind: { 
     name: "Wind", 
     image: "./wind_turbine.png", 
-    cost: 20, 
+    cost: 15, 
     emissions: 5, 
     reliability: 70, 
     approval: 10,
@@ -21,7 +21,7 @@ export const energySources = {
   solar: { 
     name: "Solar", 
     image: "./solar_farm.png", 
-    cost: 25, 
+    cost: 20, 
     emissions: 2, 
     reliability: 65, 
     approval: 15,
@@ -85,7 +85,6 @@ export const terrainTypes = [
   { name: "Cleared Plot", emoji: "🧹", modifier: { cost: 1.0, approval: 1.0 } }
 ];
 
-// Random events
 export const events = [
   {
     name: "Storm Damage",
@@ -107,13 +106,48 @@ export const events = [
   },
   {
     name: "Energy Crisis",
-    description: "Rising energy demand puts pressure on the grid!",
-    effect: { demand: 1.2 },
+    description: "Rising energy demand puts pressure on public approval!",
+    effect: { approval: -10 },
     probability: 0.25
+  },
+  {
+    name: "Government Grant",
+    description: "A federal energy grant boosts your budget!",
+    effect: { cost: 20 },
+    probability: 0.1
+  },
+  {
+    name: "Corporate Sponsorship",
+    description: "A private corporation invests in your grid.",
+    effect: { cost: 15 },
+    probability: 0.1
+  },
+  {
+    name: "Philanthropic Donation",
+    description: "A wealthy donor supports renewable energy!",
+    effect: { cost: 15 },
+    probability: 0.1
+  },
+  {
+    name: "Tax Rebate",
+    description: "Energy tax rebates free up some budget.",
+    effect: { cost: 10 },
+    probability: 0.1
+  },
+  {
+    name: "Tech Breakthrough",
+    description: "New technology improves plant reliability!",
+    effect: { reliability: 10 },
+    probability: 0.05
+  },
+  {
+    name: "Public Protest",
+    description: "Local protests lower public approval ratings.",
+    effect: { approval: -10 },
+    probability: 0.05
   }
 ];
 
-// Social media comments
 export const socialComments = [
   "More solar = more jobs in my town! 🌞",
   "No electricity AGAIN? Ugh… 😤",

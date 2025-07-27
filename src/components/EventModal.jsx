@@ -12,13 +12,23 @@ function EventModal({ currentEvent, setCurrentEvent }) {
         <div className="mb-4">
           <h5 className="font-semibold">Effects:</h5>
           <ul className="list-disc list-inside ml-4">
-            {Object.entries(currentEvent.effect).flatMap(([key, val]) => {
-              if (key === "demand") {
+            {Object.entries(currentEvent.effect).map(([key, val]) => {
+              // handle demand multiplier specially
+              if (key === 'demand') {
                 return <li key={key}>Demand ×{val}</li>;
               }
-              return Object.entries(val).map(([metric, change]) => (
-                <li key={`${key}-${metric}`}>{`${key.charAt(0).toUpperCase() + key.slice(1)} ${metric.charAt(0).toUpperCase() + metric.slice(1)} ${change > 0 ? '+' : ''}${change}`}</li>
-              ));
+              if (typeof val === 'object' && val !== null) {
+                return Object.entries(val).map(([metric, change]) => (
+                  <li key={`${key}-${metric}`}>{
+                    `${key.charAt(0).toUpperCase() + key.slice(1)} ${metric.charAt(0).toUpperCase() + metric.slice(1)} ${change > 0 ? '+' : ''}${change}`
+                  }</li>
+                ));
+              }
+              // flat effect (cost, approval, reliability)
+              const label = key === 'cost' ? 'Budget' : key.charAt(0).toUpperCase() + key.slice(1);
+              return (
+                <li key={key}>{`${label} ${val > 0 ? '+' : ''}${val}`}</li>
+              );
             })}
           </ul>
         </div>

@@ -204,13 +204,17 @@ function App() {
   function nextYear() {
     const stats = calculateStats();
     
-    const randomEvent = events[Math.floor(Math.random() * events.length)];
-    // determine if event occurs and capture its effects
-    let eventEffect = {};
-    if (Math.random() < randomEvent.probability) {
-      setCurrentEvent(randomEvent);
-      eventEffect = randomEvent.effect;
+    // always trigger exactly one event, weighted by probability
+    const totalProb = events.reduce((sum, e) => sum + e.probability, 0);
+    let r = Math.random() * totalProb;
+    let randomEvent;
+    let cum = 0;
+    for (const e of events) {
+      cum += e.probability;
+      if (r <= cum) { randomEvent = e; break; }
     }
+    setCurrentEvent(randomEvent);
+    const eventEffect = randomEvent.effect;
 
     const newComment = socialComments[Math.floor(Math.random() * socialComments.length)];
     const newFeed = [newComment];
@@ -224,11 +228,17 @@ function App() {
       let budgetDelta = 0;
       let approvalDelta = 0;
       let reliabilityDelta = 0;
-      // sum nested effects
-      Object.values(eventEffect).forEach(val => {
-        if (val.cost) budgetDelta += val.cost;
-        if (val.approval) approvalDelta += val.approval;
-        if (val.reliability) reliabilityDelta += val.reliability;
+      // handle flat and nested effect values
+      Object.entries(eventEffect).forEach(([key, val]) => {
+        if (typeof val === 'object' && val !== null) {
+          if (val.cost) budgetDelta += val.cost;
+          if (val.approval) approvalDelta += val.approval;
+          if (val.reliability) reliabilityDelta += val.reliability;
+        } else {
+          if (key === 'cost') budgetDelta += val;
+          if (key === 'approval') approvalDelta += val;
+          if (key === 'reliability') reliabilityDelta += val;
+        }
       });
       const newYear = prev.year + 1;
       const newBudget = prev.budget + budgetDelta;
@@ -236,7 +246,8 @@ function App() {
       const newApproval = Math.max(0, Math.min(100, baseApproval));
       const baseReliability = stats.reliability + reliabilityDelta;
       const newReliability = Math.max(0, Math.min(100, baseReliability));
-      const newDemand = prev.demand * (eventEffect.demand || 1);
+      // demand is unused in current game logic
+      const newDemand = prev.demand;
       return {
         budget: newBudget,
         year: newYear,
@@ -258,10 +269,14 @@ function App() {
 
   function getBadges() {
     const badges = [];
-    if (gameState.emissions < 50) badges.push("🌱 Eco Leader");
+    if (gameState.emissions < 70) badges.push("🌱 Eco Leader");
+    else if (gameState.emissions < 100) badges.push("🌿 Green Advocate");
     if (gameState.approval >= 80) badges.push("👑 Public Hero");
+    else if (gameState.approval >= 60) badges.push("👍 Rising Support");
     if (gameState.reliability >= 90) badges.push("⚡ Grid Master");
+    else if (gameState.reliability >= 75) badges.push("🔧 Stable Grid");
     if (gameState.budget > 20) badges.push("💰 Budget Genius");
+    else if (gameState.budget > 0) badges.push("💵 Budget Survivor");
     return badges;
   }
 
