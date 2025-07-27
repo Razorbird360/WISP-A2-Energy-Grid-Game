@@ -58,7 +58,7 @@ export const energySources = {
 
 // Terrain types with their effects
 export const terrainTypes = [
-  { name: "City", emoji: "🏙️", modifier: { cost: 1.2, approval: 1.1 } },
+  { name: "City", emoji: "🏙️", modifier: { cost: 1.2, approval: 0.8 } },
   { name: "Forest", emoji: "🌲", modifier: { wind: 0.8, solar: 0.9 } },
   { name: "Hills", emoji: "🏞️", modifier: { wind: 1.3, hydro: 1.2 } },
   { name: "Wetlands", emoji: "💧", modifier: { hydro: 1.4, nuclear: 0.7 } },

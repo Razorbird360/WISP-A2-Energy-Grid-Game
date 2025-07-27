@@ -205,8 +205,11 @@ function App() {
     const stats = calculateStats();
     
     const randomEvent = events[Math.floor(Math.random() * events.length)];
+    // determine if event occurs and capture its effects
+    let eventEffect = {};
     if (Math.random() < randomEvent.probability) {
       setCurrentEvent(randomEvent);
+      eventEffect = randomEvent.effect;
     }
 
     const newComment = socialComments[Math.floor(Math.random() * socialComments.length)];
@@ -217,17 +220,31 @@ function App() {
     setSocialFeed(newFeed);
 
     setGameState(function(prev) {
-      const newApproval = Math.max(0, Math.min(100, prev.approval + stats.approvalChange));
+      // apply event effects: cost, approval, reliability, demand
+      let budgetDelta = 0;
+      let approvalDelta = 0;
+      let reliabilityDelta = 0;
+      // sum nested effects
+      Object.values(eventEffect).forEach(val => {
+        if (val.cost) budgetDelta += val.cost;
+        if (val.approval) approvalDelta += val.approval;
+        if (val.reliability) reliabilityDelta += val.reliability;
+      });
       const newYear = prev.year + 1;
-      
+      const newBudget = prev.budget + budgetDelta;
+      const baseApproval = prev.approval + stats.approvalChange + approvalDelta;
+      const newApproval = Math.max(0, Math.min(100, baseApproval));
+      const baseReliability = stats.reliability + reliabilityDelta;
+      const newReliability = Math.max(0, Math.min(100, baseReliability));
+      const newDemand = prev.demand * (eventEffect.demand || 1);
       return {
-        budget: prev.budget,
+        budget: newBudget,
         year: newYear,
         maxYears: prev.maxYears,
         emissions: stats.emissions,
         approval: newApproval,
-        reliability: stats.reliability,
-        demand: prev.demand,
+        reliability: newReliability,
+        demand: newDemand,
         gameOver: newYear > prev.maxYears
       };
     });

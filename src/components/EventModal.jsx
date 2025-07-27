@@ -9,8 +9,21 @@ function EventModal({ currentEvent, setCurrentEvent }) {
         <h3 className="text-xl font-bold mb-4">📰 Breaking News!</h3>
         <h4 className="font-semibold mb-2">{currentEvent.name}</h4>
         <p className="mb-4">{currentEvent.description}</p>
+        <div className="mb-4">
+          <h5 className="font-semibold">Effects:</h5>
+          <ul className="list-disc list-inside ml-4">
+            {Object.entries(currentEvent.effect).flatMap(([key, val]) => {
+              if (key === "demand") {
+                return <li key={key}>Demand ×{val}</li>;
+              }
+              return Object.entries(val).map(([metric, change]) => (
+                <li key={`${key}-${metric}`}>{`${key.charAt(0).toUpperCase() + key.slice(1)} ${metric.charAt(0).toUpperCase() + metric.slice(1)} ${change > 0 ? '+' : ''}${change}`}</li>
+              ));
+            })}
+          </ul>
+        </div>
         <button
-          onClick={function() { setCurrentEvent(null); }}
+          onClick={function () { setCurrentEvent(null); }}
           className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Continue
