@@ -5,15 +5,8 @@ import { toast } from "../utils/toastify.js";
 function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
 {
   function getBg(energySourceType) {
-    const colors = {
-      solar: "bg-yellow-600 bg-opacity-90",
-      wind: "bg-blue-600 bg-opacity-90", 
-      hydro: "bg-cyan-600 bg-opacity-90",
-      nuclear: "bg-purple-600 bg-opacity-90",
-      coal: "bg-gray-900 bg-opacity-90",
-      gas: "bg-orange-600 bg-opacity-90"
-    };
-    return colors[energySourceType] || "bg-black bg-opacity-80";
+    const base = energySources[energySourceType]?.color || 'bg-black';
+    return `${base} bg-opacity-90`;
   }
 
 
