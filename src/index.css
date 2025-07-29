@@ -38,6 +38,19 @@ input, textarea, [contenteditable] {
   user-select: text;
 }
 
+/* Prevent iOS scroll behavior during touch interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Prevent pull-to-refresh and other iOS gestures */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Improve touch targets for mobile */
 @media (pointer: coarse) {
   button, [role="button"], .cursor-pointer {

@@ -30,10 +30,12 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     // If there's a selected energy source on mobile, place it
     if (selectedEnergy && isTouchDevice) {
       handleCellClick(index);
+      // Clear tooltip after placement
+      setSelectedCell(null);
       return;
     }
     
-    // Otherwise, handle tooltip display
+    // Otherwise, handle tooltip display - for mobile, tooltip stays until closed
     if (selectedCell === index) {
       // Toggle tooltip off if clicking the same cell
       setSelectedCell(null);
@@ -55,11 +57,12 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
         onClick={function(e) { 
           handleCellClickInternal(cell, index, e); 
         }}
-        onTouchStart={function(e) { 
+        onTouchEnd={function(e) { 
           e.preventDefault();
+          // Use touchend instead of touchstart for better iOS compatibility
           handleCellClickInternal(cell, index, e); 
         }}
-        className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation ${isAvailableForPlacement ? 'border-blue-500 bg-blue-50' : ''}`}
+        className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation ${isAvailableForPlacement ? 'border-blue-500 bg-blue-50 shadow-lg' : ''}`}
         style={{ 
           aspectRatio: '1',
           WebkitUserSelect: 'none',
@@ -98,12 +101,12 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
                 e.stopPropagation();
                 removeFromCell(index); 
               }}
-              onTouchStart={function(e) { 
+              onTouchEnd={function(e) { 
                 e.preventDefault();
                 e.stopPropagation();
                 removeFromCell(index);
               }}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-7 h-7 text-sm hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border-2 border-white transition-all duration-200 touch-manipulation"
+              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border border-white transition-all duration-200 touch-manipulation"
               title="Remove energy source"
               style={{ 
                 WebkitUserSelect: 'none',
@@ -111,7 +114,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
                 WebkitTouchCallout: 'none'
               }}
             >
-              x
+              ×
             </button>
           </div>
         )}
@@ -121,10 +124,32 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
           {renderModifiers(cell.terrain)}
         </div>
 
-        {/* Mobile tap tooltip */}
+        {/* Mobile tap tooltip with close button */}
         {isSelected && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20 pointer-events-none md:hidden">
-            {renderModifiers(cell.terrain)}
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs p-3 rounded whitespace-nowrap z-30 pointer-events-auto md:hidden shadow-lg">
+            <button
+              onClick={function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedCell(null);
+              }}
+              onTouchEnd={function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedCell(null);
+              }}
+              className="absolute -top-1 -right-1 bg-gray-600 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center hover:bg-gray-700 touch-manipulation"
+              style={{ 
+                WebkitUserSelect: 'none',
+                userSelect: 'none',
+                WebkitTouchCallout: 'none'
+              }}
+            >
+              ×
+            </button>
+            <div>
+              {renderModifiers(cell.terrain)}
+            </div>
           </div>
         )}
       </div>
@@ -133,7 +158,14 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4">🗺️ Energy Placement Grid (5x5)</h2>
+      <h2 className="text-xl font-bold mb-4">
+        🗺️ Energy Placement Grid (5x5)
+        {selectedEnergy && isTouchDevice && (
+          <div className="text-sm font-normal text-blue-600 mt-1 animate-pulse">
+            Tap any cell to place {energySources[selectedEnergy]?.name}
+          </div>
+        )}
+      </h2>
       
       <div 
         className="grid grid-cols-5 gap-1 sm:gap-2 mb-6 max-w-full"

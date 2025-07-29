@@ -4,19 +4,11 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
   const [draggedItem, setDraggedItem] = useState(null);
 
   function handleTouchStart(e, key) {
-    e.preventDefault();
-    setDraggedItem(key);
-    // For mobile devices, use tap-to-select instead of drag
     if (isTouchDevice) {
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggedItem(key);
       handleEnergySelect(key);
-    } else {
-      // Create a mock drag event for consistency with existing drag handlers
-      const mockEvent = {
-        dataTransfer: {
-          effectAllowed: "move"
-        }
-      };
-      handleDragStart(mockEvent, key);
     }
   }
 
@@ -25,6 +17,12 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
     e.stopPropagation();
     if (isTouchDevice) {
       handleEnergySelect(key);
+    }
+  }
+
+  function handleMouseDown(e, key) {
+    if (!isTouchDevice) {
+      setDraggedItem(key);
     }
   }
 
@@ -41,8 +39,9 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
           }
         }}
         onTouchStart={function(e) { handleTouchStart(e, key); }}
+        onMouseDown={function(e) { handleMouseDown(e, key); }}
         onClick={function(e) { handleClick(e, key); }}
-        className={`p-3 rounded-lg cursor-move hover:shadow-lg transition-all ${source.color} text-white touch-manipulation ${draggedItem === key ? 'opacity-75 scale-95' : ''} ${isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''}`}
+        className={`p-3 rounded-lg cursor-pointer hover:shadow-lg transition-all ${source.color} text-white touch-manipulation ${draggedItem === key ? 'opacity-75 scale-95' : ''} ${isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75 shadow-xl' : ''}`}
         style={{ 
           WebkitUserSelect: 'none',
           userSelect: 'none',
@@ -66,7 +65,7 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
           </div>
         </div>
         {isSelected && isTouchDevice && (
-          <div className="mt-2 text-xs opacity-90 text-center">
+          <div className="mt-2 text-xs opacity-90 text-center animate-pulse">
             ✓ Selected - Tap a grid cell to place
           </div>
         )}
