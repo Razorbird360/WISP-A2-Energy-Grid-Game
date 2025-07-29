@@ -1,9 +1,9 @@
-import React from "react";
-import { toast } from "../utils/toastify.js";
+import React, { useState } from "react";
 
 
-function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
+function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell, handleCellClick, selectedEnergy, isTouchDevice }) 
 {
+  const [selectedCell, setSelectedCell] = useState(null);
   function getBg(energySourceType) {
     const base = energySources[energySourceType]?.color || 'bg-black';
     return `${base} bg-opacity-90`;
@@ -23,14 +23,49 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     });
   }
 
+  function handleCellClickInternal(cell, index, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // If there's a selected energy source on mobile, place it
+    if (selectedEnergy && isTouchDevice) {
+      handleCellClick(index);
+      return;
+    }
+    
+    // Otherwise, handle tooltip display
+    if (selectedCell === index) {
+      // Toggle tooltip off if clicking the same cell
+      setSelectedCell(null);
+    } else {
+      // Show tooltip for this cell
+      setSelectedCell(index);
+    }
+  }
+
   function renderGridCell(cell, index) {
+    const isSelected = selectedCell === index;
+    const isAvailableForPlacement = selectedEnergy && isTouchDevice;
+    
     return (
       <div
         key={cell.id}
         onDragOver={handleDragOver}
         onDrop={function(e) { handleDrop(e, index); }}
-        className="aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 select-none"
-        style={{ aspectRatio: '1' }}
+        onClick={function(e) { 
+          handleCellClickInternal(cell, index, e); 
+        }}
+        onTouchStart={function(e) { 
+          e.preventDefault();
+          handleCellClickInternal(cell, index, e); 
+        }}
+        className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation ${isAvailableForPlacement ? 'border-blue-500 bg-blue-50' : ''}`}
+        style={{ 
+          aspectRatio: '1',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+          WebkitTouchCallout: 'none'
+        }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg opacity-50"></div>
         
@@ -43,12 +78,18 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
           <div 
             className={`absolute inset-0 rounded-lg flex items-center justify-center z-20 ${getBg(cell.energySource)}`}
             onClick={function(e) { e.stopPropagation(); }}
+            onTouchStart={function(e) { e.stopPropagation(); }}
           >
             <div className="text-center text-white">
               <img
                 src={energySources[cell.energySource].image}
                 alt={energySources[cell.energySource].name}
                 className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-1 object-contain"
+                style={{ 
+                  WebkitUserSelect: 'none',
+                  userSelect: 'none',
+                  WebkitTouchCallout: 'none'
+                }}
               />
               <div className="text-[10px] sm:text-xs font-bold">{energySources[cell.energySource].name}</div>
             </div>
@@ -57,17 +98,35 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
                 e.stopPropagation();
                 removeFromCell(index); 
               }}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-7 h-7 text-sm hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border-2 border-white transition-all duration-200"
+              onTouchStart={function(e) { 
+                e.preventDefault();
+                e.stopPropagation();
+                removeFromCell(index);
+              }}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-7 h-7 text-sm hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border-2 border-white transition-all duration-200 touch-manipulation"
               title="Remove energy source"
+              style={{ 
+                WebkitUserSelect: 'none',
+                userSelect: 'none',
+                WebkitTouchCallout: 'none'
+              }}
             >
               x
             </button>
           </div>
         )}
 
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20 pointer-events-none">
+        {/* Desktop hover tooltip */}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20 pointer-events-none hidden md:block">
           {renderModifiers(cell.terrain)}
         </div>
+
+        {/* Mobile tap tooltip */}
+        {isSelected && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs p-2 rounded whitespace-nowrap z-20 pointer-events-none md:hidden">
+            {renderModifiers(cell.terrain)}
+          </div>
+        )}
       </div>
     );
   }
@@ -76,7 +135,15 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h2 className="text-xl font-bold mb-4">🗺️ Energy Placement Grid (5x5)</h2>
       
-      <div className="grid grid-cols-5 gap-1 sm:gap-2 mb-6 max-w-full">
+      <div 
+        className="grid grid-cols-5 gap-1 sm:gap-2 mb-6 max-w-full"
+        onClick={function(e) {
+          // Close tooltip when clicking outside cells
+          if (e.target === e.currentTarget) {
+            setSelectedCell(null);
+          }
+        }}
+      >
         {grid.map(function(cell, index) {
           return renderGridCell(cell, index);
         })}

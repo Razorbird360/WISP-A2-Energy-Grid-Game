@@ -36,9 +36,13 @@ function App() {
   });
 
   const [draggedEnergy, setDraggedEnergy] = useState(null);
+  const [selectedEnergy, setSelectedEnergy] = useState(null); // For mobile tap-to-select
   const [currentEvent, setCurrentEvent] = useState(null);
   const [socialFeed, setSocialFeed] = useState([]);
   const [showEndGame, setShowEndGame] = useState(false);
+
+  // Detect if user is on a touch device
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   function calculateStats() {
     const placedSources = grid.filter(function(cell) {
@@ -76,20 +80,34 @@ function App() {
 
   function handleDragStart(e, energyType) {
     setDraggedEnergy(energyType);
-    e.dataTransfer.effectAllowed = "move";
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+    }
+  }
+
+  function handleEnergySelect(energyType) {
+    // For mobile devices - tap to select an energy source
+    if (selectedEnergy === energyType) {
+      setSelectedEnergy(null);
+    } else {
+      setSelectedEnergy(energyType);
+    }
   }
 
   function handleDragOver(e) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = "move";
+    }
   }
 
   function handleDrop(e, cellIndex) {
     e.preventDefault();
-    if (!draggedEnergy) return;
+    const energyToPlace = draggedEnergy || selectedEnergy;
+    if (!energyToPlace) return;
 
     const cell = grid[cellIndex];
-    const source = energySources[draggedEnergy];
+    const source = energySources[energyToPlace];
     
     const terrain = cell.terrain;
     const costModifier = terrain.modifier.cost || 1;
@@ -119,7 +137,7 @@ function App() {
         newGrid.push({
           id: grid[i].id,
           terrain: grid[i].terrain,
-          energySource: draggedEnergy,
+          energySource: energyToPlace,
           row: grid[i].row,
           col: grid[i].col
         });
@@ -151,6 +169,14 @@ function App() {
     }
 
     setDraggedEnergy(null);
+    setSelectedEnergy(null); // Clear mobile selection
+  }
+
+  function handleCellClick(cellIndex) {
+    // Handle mobile click-to-place
+    if (selectedEnergy && isTouchDevice) {
+      handleDrop({ preventDefault: function() {} }, cellIndex);
+    }
   }
 
   function removeFromCell(cellIndex) {
@@ -308,6 +334,8 @@ function App() {
     setShowEndGame(false);
     setSocialFeed([]);
     setCurrentEvent(null);
+    setDraggedEnergy(null);
+    setSelectedEnergy(null);
   }
 
   const stats = calculateStats();
@@ -325,7 +353,10 @@ function App() {
   return (
     <div 
       className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 p-4"
-      onClick={function() { setDraggedEnergy(null); }}
+      onClick={function() { 
+        setDraggedEnergy(null); 
+        setSelectedEnergy(null);
+      }}
     >
       <div className="max-w-7xl mx-auto">
         <Header gameState={gameState} stats={stats} />
@@ -335,6 +366,9 @@ function App() {
             <EnergySources 
               energySources={energySources}
               handleDragStart={handleDragStart}
+              handleEnergySelect={handleEnergySelect}
+              selectedEnergy={selectedEnergy}
+              isTouchDevice={isTouchDevice}
             />
             <CitizenFeed socialFeed={socialFeed} />
           </div>
@@ -346,6 +380,9 @@ function App() {
               handleDragOver={handleDragOver}
               handleDrop={handleDrop}
               removeFromCell={removeFromCell}
+              handleCellClick={handleCellClick}
+              selectedEnergy={selectedEnergy}
+              isTouchDevice={isTouchDevice}
             />
             <NextYearButton 
               nextYear={nextYear}
