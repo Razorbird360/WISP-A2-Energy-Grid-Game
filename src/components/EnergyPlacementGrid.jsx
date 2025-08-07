@@ -1,9 +1,24 @@
 import React, { useState } from "react";
 
-
-function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
-{
+function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell, draggedEnergy, isTouchDevice }) {
   const [selectedCell, setSelectedCell] = useState(null);
+  function handleTouchDrop(e, index) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedEnergy && isTouchDevice) {
+      // Create a synthetic drop event for mobile
+      const syntheticEvent = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        dataTransfer: {
+          getData: () => draggedEnergy
+        }
+      };
+      handleDrop(syntheticEvent, index);
+    }
+  }
+
   function getBg(energySourceType) {
     const base = energySources[energySourceType]?.color || 'bg-black';
     return `${base} bg-opacity-90`;
@@ -46,10 +61,25 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
         onClick={function(e) { 
           handleCellClickInternal(cell, index, e); 
         }}
+        onTouchStart={function(e) {
+          // Prevent default to avoid interference with drag
+          if (draggedEnergy && isTouchDevice) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
         onTouchEnd={function(e) { 
           e.preventDefault();
-          // Use touchend instead of touchstart for better iOS compatibility
-          handleCellClickInternal(cell, index, e); 
+          e.stopPropagation();
+          
+          // Always check if we have a dragged energy on mobile
+          if (draggedEnergy && isTouchDevice) {
+            console.log('Touch drop detected with energy:', draggedEnergy, 'on cell:', index);
+            handleTouchDrop(e, index);
+          } else {
+            // Use touchend instead of touchstart for better iOS compatibility
+            handleCellClickInternal(cell, index, e); 
+          }
         }}
         className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation`}
         style={{ 
@@ -95,7 +125,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
                 e.stopPropagation();
                 removeFromCell(index);
               }}
-              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border border-white transition-all duration-200 touch-manipulation"
+              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-4 h-4 text-xs hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border border-white transition-all duration-200 touch-manipulation"
               title="Remove energy source"
               style={{ 
                 WebkitUserSelect: 'none',
@@ -148,7 +178,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h2 className="text-xl font-bold mb-4">
-        🗺️ Energy Placement Grid (5x5)
+        🗺️ Energy Placement Grid
       </h2>
       
       <div 

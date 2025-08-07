@@ -369,6 +369,8 @@ function App() {
               handleDragOver={handleDragOver}
               handleDrop={handleDrop}
               removeFromCell={removeFromCell}
+              draggedEnergy={draggedEnergy}
+              isTouchDevice={isTouchDevice}
             />
             <NextYearButton 
               nextYear={nextYear}
