@@ -24,7 +24,7 @@ function EventModal({ currentEvent, setCurrentEvent }) {
                   }</li>
                 ));
               }
-              // flat effect (cost, approval, reliability)
+              // flat effect (cost, approval, energyProduction)
               const label = key === 'cost' ? 'Budget' : key.charAt(0).toUpperCase() + key.slice(1);
               return (
                 <li key={key}>{`${label} ${val > 0 ? '+' : ''}${val}`}</li>

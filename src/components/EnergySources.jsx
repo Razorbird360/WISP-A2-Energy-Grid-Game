@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function EnergySources({ energySources, handleDragStart, handleEnergySelect, selectedEnergy, isTouchDevice }) {
+function EnergySources({ energySources, handleDragStart, isTouchDevice }) {
   const [draggedItem, setDraggedItem] = useState(null);
 
   function handleTouchStart(e, key) {
@@ -8,16 +8,12 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
       e.preventDefault();
       e.stopPropagation();
       setDraggedItem(key);
-      handleEnergySelect(key);
     }
   }
 
-  function handleClick(e, key) {
+  function handleClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (isTouchDevice) {
-      handleEnergySelect(key);
-    }
   }
 
   function handleMouseDown(e, key) {
@@ -26,9 +22,11 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
     }
   }
 
+  function handleDragEnd() {
+    setDraggedItem(null);
+  }
+
   function renderEnergySource(key, source) {
-    const isSelected = selectedEnergy === key;
-    
     return (
       <div
         key={key}
@@ -38,10 +36,11 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
             handleDragStart(e, key); 
           }
         }}
+        onDragEnd={function() { setDraggedItem(null); }}
         onTouchStart={function(e) { handleTouchStart(e, key); }}
         onMouseDown={function(e) { handleMouseDown(e, key); }}
-        onClick={function(e) { handleClick(e, key); }}
-        className={`p-3 rounded-lg cursor-pointer hover:shadow-lg transition-all ${source.color} text-white touch-manipulation ${draggedItem === key ? 'opacity-75 scale-95' : ''} ${isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75 shadow-xl' : ''}`}
+        onClick={function(e) { handleClick(e); }}
+        className={`p-3 rounded-lg cursor-pointer hover:shadow-lg transition-all ${source.color} text-white touch-manipulation`}
         style={{ 
           WebkitUserSelect: 'none',
           userSelect: 'none',
@@ -64,11 +63,6 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
             <div className="text-sm opacity-90">${source.cost}M</div>
           </div>
         </div>
-        {isSelected && isTouchDevice && (
-          <div className="mt-2 text-xs opacity-90 text-center animate-pulse">
-            ✓ Selected - Tap a grid cell to place
-          </div>
-        )}
       </div>
     );
   }
@@ -79,7 +73,7 @@ function EnergySources({ energySources, handleDragStart, handleEnergySelect, sel
         🔋 Energy Sources
         {isTouchDevice && (
           <div className="text-sm font-normal text-gray-600 mt-1">
-            Tap to select, then tap grid to place
+            Drag and drop to place on grid
           </div>
         )}
       </h2>

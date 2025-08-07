@@ -16,7 +16,7 @@ function App() {
     maxYears: 5,
     emissions: 0,
     approval: 50,
-    reliability: 100,
+    energyProduction: 0,
     demand: 100,
     gameOver: false
   });
@@ -35,8 +35,7 @@ function App() {
     return newGrid;
   });
 
-  const [draggedEnergy, setDraggedEnergy] = useState(null);
-  const [selectedEnergy, setSelectedEnergy] = useState(null); // For mobile tap-to-select
+  const [draggedEnergy, setDraggedEnergy] = useState(null); // For mobile tap-to-select
   const [currentEvent, setCurrentEvent] = useState(null);
   const [socialFeed, setSocialFeed] = useState([]);
   const [showEndGame, setShowEndGame] = useState(false);
@@ -51,20 +50,23 @@ function App() {
     
     const totalEmissions = placedSources.reduce(function(sum, cell) {
       const source = energySources[cell.energySource];
+      if (!source) return sum;
       const terrain = cell.terrain;
       const modifier = terrain.modifier.emissions || 1;
       return sum + (source.emissions * modifier);
     }, 0);
 
-    const totalReliability = placedSources.reduce(function(sum, cell) {
+    const totalEnergyProduction = placedSources.reduce(function(sum, cell) {
       const source = energySources[cell.energySource];
+      if (!source) return sum;
       const terrain = cell.terrain;
       const modifier = terrain.modifier[cell.energySource] || 1;
-      return sum + (source.reliability * modifier);
+      return sum + (source.energyProduction * modifier);
     }, 0);
 
     const approvalChange = placedSources.reduce(function(sum, cell) {
       const source = energySources[cell.energySource];
+      if (!source) return sum;
       const terrain = cell.terrain;
       const modifier = terrain.modifier.approval || 1;
       return sum + (source.approval * modifier);
@@ -72,7 +74,7 @@ function App() {
 
     return {
       emissions: totalEmissions,
-      reliability: Math.min(100, totalReliability / placedSources.length || 0),
+      energyProduction: totalEnergyProduction,
       approvalChange: approvalChange,
       energyProduced: placedSources.length * 20
     };
@@ -85,15 +87,6 @@ function App() {
     }
   }
 
-  function handleEnergySelect(energyType) {
-    // For mobile devices - tap to select an energy source
-    if (selectedEnergy === energyType) {
-      setSelectedEnergy(null);
-    } else {
-      setSelectedEnergy(energyType);
-    }
-  }
-
   function handleDragOver(e) {
     e.preventDefault();
     if (e.dataTransfer) {
@@ -103,7 +96,7 @@ function App() {
 
   function handleDrop(e, cellIndex) {
     e.preventDefault();
-    const energyToPlace = draggedEnergy || selectedEnergy;
+    const energyToPlace = draggedEnergy;
     if (!energyToPlace) return;
 
     const cell = grid[cellIndex];
@@ -154,7 +147,7 @@ function App() {
         maxYears: prev.maxYears,
         emissions: prev.emissions,
         approval: prev.approval,
-        reliability: prev.reliability,
+        energyProduction: prev.energyProduction,
         demand: prev.demand,
         gameOver: prev.gameOver
       };
@@ -169,14 +162,6 @@ function App() {
     }
 
     setDraggedEnergy(null);
-    setSelectedEnergy(null); // Clear mobile selection
-  }
-
-  function handleCellClick(cellIndex) {
-    // Handle mobile click-to-place
-    if (selectedEnergy && isTouchDevice) {
-      handleDrop({ preventDefault: function() {} }, cellIndex);
-    }
   }
 
   function removeFromCell(cellIndex) {
@@ -216,7 +201,7 @@ function App() {
         maxYears: prev.maxYears,
         emissions: prev.emissions,
         approval: prev.approval,
-        reliability: prev.reliability,
+        energyProduction: prev.energyProduction,
         demand: prev.demand,
         gameOver: prev.gameOver
       };
@@ -250,37 +235,37 @@ function App() {
     setSocialFeed(newFeed);
 
     setGameState(function(prev) {
-      // apply event effects: cost, approval, reliability, demand
+      // apply event effects: cost, approval, energyProduction, demand
       let budgetDelta = 0;
       let approvalDelta = 0;
-      let reliabilityDelta = 0;
+      let energyProductionDelta = 0;
       // handle flat and nested effect values
       Object.entries(eventEffect).forEach(([key, val]) => {
         if (typeof val === 'object' && val !== null) {
           if (val.cost) budgetDelta += val.cost;
           if (val.approval) approvalDelta += val.approval;
-          if (val.reliability) reliabilityDelta += val.reliability;
+          if (val.energyProduction) energyProductionDelta += val.energyProduction;
         } else {
           if (key === 'cost') budgetDelta += val;
           if (key === 'approval') approvalDelta += val;
-          if (key === 'reliability') reliabilityDelta += val;
+          if (key === 'energyProduction') energyProductionDelta += val;
         }
       });
       const newYear = prev.year + 1;
       const newBudget = prev.budget + budgetDelta;
       const baseApproval = prev.approval + stats.approvalChange + approvalDelta;
       const newApproval = Math.max(0, Math.min(100, baseApproval));
-      const baseReliability = stats.reliability + reliabilityDelta;
-      const newReliability = Math.max(0, Math.min(100, baseReliability));
+      const newEnergyProduction = prev.energyProduction + stats.energyProduction + energyProductionDelta;
+      const newEmissions = prev.emissions + stats.emissions;
       // demand is unused in current game logic
       const newDemand = prev.demand;
       return {
         budget: newBudget,
         year: newYear,
         maxYears: prev.maxYears,
-        emissions: stats.emissions,
+        emissions: newEmissions,
         approval: newApproval,
-        reliability: newReliability,
+        energyProduction: Math.max(0, newEnergyProduction),
         demand: newDemand,
         gameOver: newYear > prev.maxYears
       };
@@ -295,14 +280,22 @@ function App() {
 
   function getBadges() {
     const badges = [];
-    if (gameState.emissions < 70) badges.push("🌱 Eco Leader");
-    else if (gameState.emissions < 100) badges.push("🌿 Green Advocate");
+    // Emissions badges (lower is better)
+    if (gameState.emissions < 200) badges.push("🌱 Eco Leader");
+    else if (gameState.emissions < 400) badges.push("🌿 Green Advocate");
+    
+    // Energy production badges (higher is better)
+    if (gameState.energyProduction >= 1000) badges.push("⚡ Energy Master");
+    else if (gameState.energyProduction >= 600) badges.push("� Power Producer");
+    
+    // Public approval badges
     if (gameState.approval >= 80) badges.push("👑 Public Hero");
-    else if (gameState.approval >= 60) badges.push("👍 Rising Support");
-    if (gameState.reliability >= 90) badges.push("⚡ Grid Master");
-    else if (gameState.reliability >= 75) badges.push("🔧 Stable Grid");
+    else if (gameState.approval >= 60) badges.push("� Rising Support");
+    
+    // Budget badges
     if (gameState.budget > 20) badges.push("💰 Budget Genius");
     else if (gameState.budget > 0) badges.push("💵 Budget Survivor");
+    
     return badges;
   }
 
@@ -314,7 +307,7 @@ function App() {
       maxYears: 5,
       emissions: 0,
       approval: 50,
-      reliability: 100,
+      energyProduction: 0,
       demand: 100,
       gameOver: false
     });
@@ -335,7 +328,6 @@ function App() {
     setSocialFeed([]);
     setCurrentEvent(null);
     setDraggedEnergy(null);
-    setSelectedEnergy(null);
   }
 
   const stats = calculateStats();
@@ -355,7 +347,6 @@ function App() {
       className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 p-4"
       onClick={function() { 
         setDraggedEnergy(null); 
-        setSelectedEnergy(null);
       }}
     >
       <div className="max-w-7xl mx-auto">
@@ -366,8 +357,6 @@ function App() {
             <EnergySources 
               energySources={energySources}
               handleDragStart={handleDragStart}
-              handleEnergySelect={handleEnergySelect}
-              selectedEnergy={selectedEnergy}
               isTouchDevice={isTouchDevice}
             />
             <CitizenFeed socialFeed={socialFeed} />
@@ -380,9 +369,6 @@ function App() {
               handleDragOver={handleDragOver}
               handleDrop={handleDrop}
               removeFromCell={removeFromCell}
-              handleCellClick={handleCellClick}
-              selectedEnergy={selectedEnergy}
-              isTouchDevice={isTouchDevice}
             />
             <NextYearButton 
               nextYear={nextYear}

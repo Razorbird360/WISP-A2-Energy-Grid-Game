@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 
-function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell, handleCellClick, selectedEnergy, isTouchDevice }) 
+function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, removeFromCell }) 
 {
   const [selectedCell, setSelectedCell] = useState(null);
   function getBg(energySourceType) {
@@ -14,7 +14,8 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     return Object.entries(terrain.modifier).map(function([key, value]) {
       const modifier = value > 1 ? '+' : '';
       const percentage = Math.round((value - 1) * 100);
-      const displayKey = key === 'approval' ? 'public approval' : key;
+      const displayKey = key === 'approval' ? 'public approval' : 
+                        key === 'energyProduction' ? 'energy production' : key;
       return (
         <div key={key}>
           {displayKey}: {modifier}{percentage}%
@@ -27,27 +28,15 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     e.preventDefault();
     e.stopPropagation();
     
-    // If there's a selected energy source on mobile, place it
-    if (selectedEnergy && isTouchDevice) {
-      handleCellClick(index);
-      // Clear tooltip after placement
-      setSelectedCell(null);
-      return;
-    }
-    
-    // Otherwise, handle tooltip display - for mobile, tooltip stays until closed
     if (selectedCell === index) {
-      // Toggle tooltip off if clicking the same cell
       setSelectedCell(null);
     } else {
-      // Show tooltip for this cell
       setSelectedCell(index);
     }
   }
 
   function renderGridCell(cell, index) {
     const isSelected = selectedCell === index;
-    const isAvailableForPlacement = selectedEnergy && isTouchDevice;
     
     return (
       <div
@@ -62,7 +51,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
           // Use touchend instead of touchstart for better iOS compatibility
           handleCellClickInternal(cell, index, e); 
         }}
-        className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation ${isAvailableForPlacement ? 'border-blue-500 bg-blue-50 shadow-lg' : ''}`}
+        className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg p-1 sm:p-2 hover:border-blue-400 transition-colors relative group min-w-0 cursor-pointer touch-manipulation`}
         style={{ 
           aspectRatio: '1',
           WebkitUserSelect: 'none',
@@ -160,11 +149,6 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h2 className="text-xl font-bold mb-4">
         🗺️ Energy Placement Grid (5x5)
-        {selectedEnergy && isTouchDevice && (
-          <div className="text-sm font-normal text-blue-600 mt-1 animate-pulse">
-            Tap any cell to place {energySources[selectedEnergy]?.name}
-          </div>
-        )}
       </h2>
       
       <div 

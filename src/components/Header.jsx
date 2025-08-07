@@ -29,10 +29,10 @@ function Header({ gameState, stats }) {
             <div className="space-y-2">
               <div>• Drag energy sources to the 5x5 grid</div>
               <div>• Manage your $100M budget over 5 years</div>
-              <div>• Balance emissions, reliability & public approval</div>
+              <div>• Balance emissions, energy production & public approval</div>
               <div>• Different terrains affect costs & efficiency</div>
               <div>• Click "Next Year" to advance and face events</div>
-              <div>• Aim for high approval and low emissions!</div>
+              <div>• Aim for low emissions and high energy production!</div>
             </div>
           </div>
         )}
@@ -52,8 +52,8 @@ function Header({ gameState, stats }) {
           <div className="text-sm text-blue-600">Public Approval</div>
         </div>
         <div className="text-center p-3 bg-yellow-100 rounded-lg">
-          <div className="font-bold text-yellow-800">{Math.round(stats.reliability)}%</div>
-          <div className="text-sm text-yellow-600">Reliability</div>
+          <div className="font-bold text-yellow-800">{Math.round(gameState.energyProduction || 0)} kWh</div>
+          <div className="text-sm text-yellow-600">Energy Production</div>
         </div>
         <div className="text-center p-3 bg-purple-100 rounded-lg">
           <div className="font-bold text-purple-800">Year {gameState.year}/5</div>

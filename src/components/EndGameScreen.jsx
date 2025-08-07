@@ -20,8 +20,8 @@ function EndGameScreen({ gameState, getBadges, resetGame }) {
             <div className="text-purple-600">Public Approval</div>
           </div>
           <div className="text-center p-4 bg-yellow-100 rounded-xl">
-            <div className="text-2xl font-bold text-yellow-800">{Math.round(gameState.reliability)}%</div>
-            <div className="text-yellow-600">Grid Reliability</div>
+            <div className="text-2xl font-bold text-yellow-800">{Math.round(gameState.energyProduction || 0)} kWh</div>
+            <div className="text-yellow-600">Total Energy Production</div>
           </div>
         </div>
 

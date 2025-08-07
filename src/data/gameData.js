@@ -5,7 +5,7 @@ export const energySources = {
     image: "./coal_plant.png", 
     cost: 30, 
     emissions: 80, 
-    reliability: 95, 
+    energyProduction: 100, // kWh per round
     approval: -10,
     color: "bg-gray-800"
   },
@@ -14,7 +14,7 @@ export const energySources = {
     image: "./wind_turbine.png", 
     cost: 15, 
     emissions: 5, 
-    reliability: 70, 
+    energyProduction: 35, // kWh per round
     approval: 10,
     color: "bg-blue-500"
   },
@@ -23,7 +23,7 @@ export const energySources = {
     image: "./solar_farm.png", 
     cost: 20, 
     emissions: 2, 
-    reliability: 65, 
+    energyProduction: 40, // kWh per round
     approval: 15,
     color: "bg-yellow-500"
   },
@@ -32,7 +32,7 @@ export const energySources = {
     image: "./nuclear_plant.png", 
     cost: 40, 
     emissions: 1, 
-    reliability: 98, 
+    energyProduction: 120, // kWh per round
     approval: 5,
     color: "bg-green-600"
   },
@@ -41,7 +41,7 @@ export const energySources = {
     image: "./hydro_plant.png", 
     cost: 35, 
     emissions: 3, 
-    reliability: 90, 
+    energyProduction: 60, // kWh per round
     approval: 10,
     color: "bg-blue-600"
   },
@@ -50,7 +50,7 @@ export const energySources = {
     image: "./gas_plant.png", 
     cost: 25, 
     emissions: 40, 
-    reliability: 85, 
+    energyProduction: 80, // kWh per round
     approval: -5,
     color: "bg-orange-500"
   }
@@ -81,7 +81,7 @@ export const terrainTypes = [
   { name: "Sacred Land", emoji: "⛪", modifier: { approval: 0.5, emissions: 0.8 } },
   { name: "Farmland", emoji: "🚜", modifier: { approval: 1.1, wind: 1.1 } },
   { name: "National Park", emoji: "🏞", modifier: { approval: 0.3, emissions: 0.7 } },
-  { name: "Construction", emoji: "🏗", modifier: { cost: 0.8, reliability: 0.9 } },
+  { name: "Construction", emoji: "🏗", modifier: { cost: 0.8, energyProduction: 0.9 } },
   { name: "Cleared Plot", emoji: "🧹", modifier: { cost: 1.0, approval: 1.0 } }
 ];
 
@@ -89,7 +89,7 @@ export const events = [
   {
     name: "Storm Damage",
     description: "A severe storm has damaged wind farms across the region!",
-    effect: { wind: { reliability: -20 } },
+    effect: { wind: { energyProduction: -20 } },
     probability: 0.3
   },
   {
@@ -136,8 +136,8 @@ export const events = [
   },
   {
     name: "Tech Breakthrough",
-    description: "New technology improves plant reliability!",
-    effect: { reliability: 10 },
+    description: "New technology improves plant energy production!",
+    effect: { energyProduction: 10 },
     probability: 0.05
   },
   {
