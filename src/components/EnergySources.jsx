@@ -201,7 +201,7 @@ function EnergySources({ energySources, handleDragStart, isTouchDevice }) {
             </div>
             
             <div className="mt-4 text-xs text-gray-500">
-              Note: Actual values may vary based on terrain modifiers
+              Actual values may vary based on terrain modifiers
             </div>
           </div>
         </div>

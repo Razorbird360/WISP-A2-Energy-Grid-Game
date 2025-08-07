@@ -125,7 +125,7 @@ function EnergyPlacementGrid({ grid, energySources, handleDragOver, handleDrop, 
                 e.stopPropagation();
                 removeFromCell(index);
               }}
-              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-4 h-4 text-xs hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border border-white transition-all duration-200 touch-manipulation"
+              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-4 h-4 md:w-6 md:h-6 text-xs hover:bg-red-600 hover:scale-110 flex items-center justify-center z-30 shadow-lg border border-white transition-all duration-200 touch-manipulation"
               title="Remove energy source"
               style={{ 
                 WebkitUserSelect: 'none',

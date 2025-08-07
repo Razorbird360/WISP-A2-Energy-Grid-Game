@@ -33,6 +33,7 @@ function Header({ gameState, stats }) {
               <div>• Different terrains affect costs & efficiency</div>
               <div>• Click "Next Year" to advance and face events</div>
               <div>• Aim for low emissions and high energy production!</div>
+              <div>• Click the energy sources for more info!</div>
             </div>
           </div>
         )}
