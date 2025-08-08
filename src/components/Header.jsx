@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 function Header({ gameState, stats }) {
   const [showHelp, setShowHelp] = useState(false);
+  const [hasClickedHelp, setHasClickedHelp] = useState(false);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 mb-6 relative">
@@ -9,8 +10,13 @@ function Header({ gameState, stats }) {
       
       <div className="absolute top-4 right-4">
         <div 
-          className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold cursor-pointer hover:bg-blue-600 transition-colors"
-          onClick={() => setShowHelp(!showHelp)}
+          className={`w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold cursor-pointer hover:bg-blue-600 transition-colors ${!hasClickedHelp ? 'animate-pulse shadow-lg shadow-blue-500/50' : ''}`}
+          onClick={() => {
+            setShowHelp(!showHelp);
+            if (!hasClickedHelp) {
+              setHasClickedHelp(true);
+            }
+          }}
         >
           ?
         </div>
